@@ -1,0 +1,424 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui, -apple-system, sans-serif); color: var(--color-text-primary, #333); }
+.app { max-width: 100%; }
+.nav { display: flex; gap: 2px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.nav-btn { padding: 8px 14px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--color-border-tertiary, #ddd); background: var(--color-background-primary, #fff); color: var(--color-text-secondary, #666); border-radius: var(--border-radius-md, 8px); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.nav-btn:hover { background: var(--color-background-secondary, #f5f5f5); color: var(--color-text-primary, #333); }
+.nav-btn.active { background: #1B2A4A; color: #fff; border-color: #1B2A4A; }
+.section { display: none; }
+.section.active { display: block; }
+.section-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--color-text-secondary, #666); margin-bottom: 1.5rem; line-height: 1.5; }
+.card { background: var(--color-background-primary, #fff); border: 0.5px solid var(--color-border-tertiary, #ddd); border-radius: var(--border-radius-lg, 12px); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.card-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md, 8px); font-weight: 500; }
+.badge-teal { background: #E1F5EE; color: #0F6E56; }
+.badge-blue { background: #E6F1FB; color: #185FA5; }
+.badge-amber { background: #FAEEDA; color: #854F0B; }
+.badge-coral { background: #FAECE7; color: #993C1D; }
+.badge-red { background: #FCEBEB; color: #A32D2D; }
+.badge-green { background: #EAF3DE; color: #3B6D11; }
+.badge-purple { background: #EEEDFE; color: #534AB7; }
+.checklist-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary, #ddd); font-size: 13px; line-height: 1.5; }
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
+.checklist-item.checked label { color: var(--color-text-secondary, #666); text-decoration: line-through; }
+.intake-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+.intake-card { background: var(--color-background-primary, #fff); border: 0.5px solid var(--color-border-tertiary, #ddd); border-radius: var(--border-radius-lg, 12px); padding: 14px; }
+.intake-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.intake-card p { font-size: 12px; color: var(--color-text-secondary, #666); line-height: 1.4; margin-bottom: 2px; }
+.calc-form { display: grid; gap: 12px; margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-secondary, #666); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.paystub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.paystub-grid input { width: 100%; }
+.result-box { border-radius: var(--border-radius-lg, 12px); padding: 1.25rem; margin-top: 1rem; }
+.result-eligible { background: #EAF3DE; border: 1px solid #97C459; }
+.result-ineligible { background: #FAEEDA; border: 1px solid #EF9F27; }
+.result-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.math-breakdown { font-size: 12px; line-height: 1.8; color: var(--color-text-secondary, #666); }
+.math-breakdown .num { font-weight: 500; color: var(--color-text-primary, #333); }
+.tracker { display: flex; gap: 0; align-items: center; margin: 1rem 0; flex-wrap: wrap; }
+.tracker-step { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px; position: relative; }
+.tracker-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--color-border-tertiary, #ddd); background: var(--color-background-primary, #fff); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: var(--color-text-secondary, #666); z-index: 1; }
+.tracker-dot.complete { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+.tracker-dot.current { background: #E6F1FB; border-color: #185FA5; color: #185FA5; }
+.tracker-label { font-size: 10px; color: var(--color-text-secondary, #666); text-align: center; margin-top: 4px; max-width: 70px; line-height: 1.3; }
+.tracker-line { height: 2px; flex: 1; background: var(--color-border-tertiary, #ddd); min-width: 8px; margin-top: -12px; }
+.tracker-line.complete { background: #1D9E75; }
+.countdown { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--border-radius-md, 8px); margin: 1rem 0; }
+.countdown-green { background: #EAF3DE; border-left: 3px solid #639922; }
+.countdown-yellow { background: #FAEEDA; border-left: 3px solid #EF9F27; }
+.countdown-red { background: #FCEBEB; border-left: 3px solid #E24B4A; }
+.countdown-num { font-size: 28px; font-weight: 500; }
+.countdown-label { font-size: 12px; color: var(--color-text-secondary, #666); }
+.wf-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.wf-info h4 { font-size: 13px; font-weight: 500; }
+.wf-info p { font-size: 12px; color: var(--color-text-secondary, #666); line-height: 1.4; margin-top: 2px; }
+.vault-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary, #ddd); }
+.vault-item:last-child { border-bottom: none; }
+.vault-name { font-size: 13px; font-weight: 500; }
+.vault-meta { font-size: 11px; color: var(--color-text-secondary, #666); }
+.vault-status { font-size: 11px; }
+.pkg-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 13px; }
+.pkg-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.pkg-yes { background: #EAF3DE; color: #3B6D11; }
+.pkg-no { background: #FCEBEB; color: #A32D2D; }
+.onboard { text-align: center; padding: 2rem 1rem; }
+.onboard h2 { font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+.onboard p { font-size: 14px; color: var(--color-text-secondary, #666); margin-bottom: 1.5rem; }
+.onboard-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.onboard-btn { padding: 12px 28px; border-radius: var(--border-radius-lg, 12px); font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-secondary, #ccc); background: var(--color-background-primary, #fff); color: var(--color-text-primary, #333); transition: all 0.15s; }
+.onboard-btn:hover { background: var(--color-background-secondary, #f5f5f5); }
+.onboard-btn.primary { background: #1B2A4A; color: #fff; border-color: #1B2A4A; }
+.onboard-btn.primary:hover { background: #2a3d63; }
+.rights-item { padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary, #ddd); }
+.rights-item:last-child { border-bottom: none; }
+.rights-item h4 { font-size: 13px; font-weight: 500; margin-bottom: 2px; cursor: pointer; }
+.rights-item p { font-size: 12px; color: var(--color-text-secondary, #666); line-height: 1.5; display: none; margin-top: 6px; }
+.rights-item.open p { display: block; }
+.cw-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 8px; padding: 8px 12px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary, #666); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0.5px solid var(--color-border-tertiary, #ddd); }
+.cw-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 8px; padding: 10px 12px; font-size: 13px; border-bottom: 0.5px solid var(--color-border-tertiary, #ddd); align-items: center; }
+.cw-row:last-child { border-bottom: none; }
+.stage-pill { font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md, 8px); display: inline-block; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.metric { background: var(--color-background-secondary, #f5f5f5); border-radius: var(--border-radius-md, 8px); padding: 1rem; }
+.metric-label { font-size: 11px; color: var(--color-text-secondary, #666); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; }
+select, input[type="number"] { width: 100%; }
+</style>
+
+<div class="app">
+<div id="onboard-screen" class="onboard">
+  <div style="font-size: 28px; margin-bottom: 12px; font-weight: 500; color: #1B2A4A;">NYC Housing Navigation Suite</div>
+  <p style="max-width: 380px; margin: 0 auto 1.5rem;">Welcome. This platform will guide you from shelter to permanent housing, step by step.</p>
+  <p style="font-size: 14px; font-weight: 500; margin-bottom: 1rem;">Are you currently in a shelter?</p>
+  <div class="onboard-btns">
+    <button class="onboard-btn primary" onclick="startApp('shelter')">Yes, I'm in shelter</button>
+    <button class="onboard-btn" onclick="startApp('voucher')">No, I'm not in shelter</button>
+  </div>
+  <p style="font-size: 11px; color: var(--color-text-secondary, #666); margin-top: 1.5rem;">You can access all sections at any time from the navigation bar.</p>
+</div>
+
+<div id="main-app" style="display:none;">
+<div class="nav">
+  <button class="nav-btn" data-section="intake" onclick="showSection('intake')">Intake orientation</button>
+  <button class="nav-btn" data-section="calc" onclick="showSection('calc')">CityFHEPS eligibility</button>
+  <button class="nav-btn" data-section="workforce" onclick="showSection('workforce')">Workforce connector</button>
+  <button class="nav-btn" data-section="search" onclick="showSection('search')">Apartment search</button>
+  <button class="nav-btn" data-section="vault" onclick="showSection('vault')">Document vault</button>
+  <button class="nav-btn" data-section="rights" onclick="showSection('rights')">Know your rights</button>
+  <button class="nav-btn" data-section="caseworker" onclick="showSection('caseworker')">Case worker</button>
+</div>
+
+<!-- INTAKE -->
+<div id="sec-intake" class="section">
+  <div class="section-title">Shelter intake orientation</div>
+  <div class="section-sub">Everything you need to know before visiting an intake center. This is an educational overview — intake is done in person.</div>
+  <div class="intake-grid">
+    <div class="intake-card">
+      <div class="badge badge-teal" style="margin-bottom:8px;">Families with children</div>
+      <h4>PATH</h4>
+      <p>151 East 151st Street, Bronx</p>
+      <p>718-503-6400 — Open 24/7</p>
+    </div>
+    <div class="intake-card">
+      <div class="badge badge-blue" style="margin-bottom:8px;">Adult families</div>
+      <h4>AFIC</h4>
+      <p>400-430 East 30th Street, Manhattan</p>
+      <p>Open 24/7</p>
+    </div>
+    <div class="intake-card">
+      <div class="badge badge-purple" style="margin-bottom:8px;">Single men</div>
+      <h4>30th Street Men's Intake</h4>
+      <p>400-430 East 30th Street, Manhattan</p>
+      <p>Open 24/7</p>
+    </div>
+    <div class="intake-card">
+      <div class="badge badge-coral" style="margin-bottom:8px;">Single women</div>
+      <h4>HELP Women's Shelter</h4>
+      <p>116 Williams Avenue, Brooklyn</p>
+      <p>718-483-7700 — Open 24/7</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What to bring — checklist</div>
+    <div id="checklist">
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Photo ID with date of birth (passport, license, state ID, IDNYC, green card)</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Social Security card</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Birth certificate (for all household members)</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Proof of prior address (utility bill, lease, mail)</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Medical documentation (if requesting disability accommodations)</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Immigration documents (if applicable — status does not affect eligibility)</label></div>
+      <div class="checklist-item"><input type="checkbox" onchange="toggleCheck(this)"><label>Documents for all children (if applying as a family)</label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What to expect at intake</div>
+    <p style="font-size:13px;color:var(--color-text-secondary, #666);line-height:1.6;margin-bottom:8px;">The process can take an entire day. Snacks are provided but outside food is not permitted. If you have children, PATH will provide an attendance letter for school absences. Interpreters are available.</p>
+    <div style="font-size:13px;line-height:1.8;">
+      <div>1. Arrival and check-in</div>
+      <div>2. Interview about your living situation</div>
+      <div>3. Document verification (DHS will still help if docs are incomplete)</div>
+      <div>4. Physical health evaluation</div>
+      <div>5. Psychiatric / psychological evaluation</div>
+      <div>6. Required immunizations and screenings</div>
+      <div>7. Eligibility determination</div>
+      <div>8. Shelter assignment</div>
+      <div>9. Meet your case manager</div>
+      <div>10. Independent Living Plan (ILP)</div>
+    </div>
+  </div>
+</div>
+
+<!-- CALCULATOR -->
+<div id="sec-calc" class="section">
+  <div class="section-title">CityFHEPS eligibility calculator</div>
+  <div class="section-sub">Enter your paystub information to see if your income falls within the CityFHEPS threshold. Only DSS can make official eligibility determinations — this is an estimate.</div>
+
+  <div class="card">
+    <div class="calc-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Household size</label>
+          <select id="household">
+            <option value="1">1 person</option>
+            <option value="2">2 people</option>
+            <option value="3" selected>3 people</option>
+            <option value="4">4 people</option>
+            <option value="5">5 people</option>
+            <option value="6">6 people</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pay frequency</label>
+          <select id="frequency">
+            <option value="52">Weekly</option>
+            <option value="26" selected>Biweekly</option>
+            <option value="24">Semi-monthly</option>
+            <option value="12">Monthly</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Gross pay from your 4 most recent paystubs</label>
+        <div class="paystub-grid">
+          <input type="number" id="ps1" placeholder="Paystub 1" min="0" step="0.01">
+          <input type="number" id="ps2" placeholder="Paystub 2" min="0" step="0.01">
+          <input type="number" id="ps3" placeholder="Paystub 3" min="0" step="0.01">
+          <input type="number" id="ps4" placeholder="Paystub 4" min="0" step="0.01">
+        </div>
+      </div>
+    </div>
+    <button onclick="calculate()" style="width:100%;padding:10px;font-weight:500;background:#1B2A4A;color:#fff;border:none;border-radius:var(--border-radius-md, 8px);cursor:pointer;font-size:14px;">Calculate eligibility</button>
+    <div id="calc-result"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Voucher application tracker</div>
+    <div class="tracker">
+      <div class="tracker-step"><div class="tracker-dot complete">1</div><div class="tracker-label">Eligibility confirmed</div></div>
+      <div class="tracker-line complete"></div>
+      <div class="tracker-step"><div class="tracker-dot complete">2</div><div class="tracker-label">Homebase appt</div></div>
+      <div class="tracker-line complete"></div>
+      <div class="tracker-step"><div class="tracker-dot complete">3</div><div class="tracker-label">App submitted</div></div>
+      <div class="tracker-line complete"></div>
+      <div class="tracker-step"><div class="tracker-dot current">4</div><div class="tracker-label">Under review</div></div>
+      <div class="tracker-line"></div>
+      <div class="tracker-step"><div class="tracker-dot">5</div><div class="tracker-label">Shopping letter</div></div>
+      <div class="tracker-line"></div>
+      <div class="tracker-step"><div class="tracker-dot">6</div><div class="tracker-label">Apartment search</div></div>
+      <div class="tracker-line"></div>
+      <div class="tracker-step"><div class="tracker-dot">7</div><div class="tracker-label">Package submitted</div></div>
+      <div class="tracker-line"></div>
+      <div class="tracker-step"><div class="tracker-dot">8</div><div class="tracker-label">Approved</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary, #666);margin-top:4px;">Updated by your case worker. You'll receive notifications when milestones change.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Shopping letter countdown</div>
+    <div class="countdown countdown-green">
+      <div><div class="countdown-num" style="color:#3B6D11;">87</div></div>
+      <div><div style="font-size:14px;font-weight:500;">Days remaining</div><div class="countdown-label">Shopping letter expires July 2, 2026 — stay on track</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORKFORCE -->
+<div id="sec-workforce" class="section">
+  <div class="section-title">Workforce connector</div>
+  <div class="section-sub">NYC employment and training programs for people in or exiting shelter. You need 30+ days of work history and 4 paystubs to run the CityFHEPS eligibility calculator.</div>
+
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>Urban Upbound</h4><p>Job readiness, vocational training (OSHA, healthcare, culinary), 1:1 counseling</p><p style="margin-top:4px;">718-784-0877 — Long Island City & East Harlem</p></div><div class="badge badge-teal">NYCHA + low-income</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>Jobs-Plus</h4><p>Employment assessment, job search assistance, financial coaching, community support</p><p style="margin-top:4px;">Multiple locations across NYC</p></div><div class="badge badge-blue">NYCHA residents</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>WorkForce1 Career Centers</h4><p>Job matching, resume help, interview prep, industry-specific training</p><p style="margin-top:4px;">All five boroughs</p></div><div class="badge badge-green">All New Yorkers</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>HRA Career Services</h4><p>Skills training, HSE courses, ESL classes, job placement</p><p style="margin-top:4px;">careertrack@hra.nyc.gov</p></div><div class="badge badge-amber">Cash Assistance recipients</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>Urban Pathways ACE</h4><p>IPS-model employment support, job readiness, ongoing workplace support</p><p style="margin-top:4px;">urbanpathways.org</p></div><div class="badge badge-coral">Homeless / at risk</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>DYCD Youth Programs</h4><p>Summer internships, career training, mentoring, college access</p><p style="margin-top:4px;">discoverdycd.dycdconnect.nyc</p></div><div class="badge badge-purple">Ages 14-24</div></div></div>
+  <div class="card"><div class="wf-card"><div class="wf-info"><h4>TXT-2-WORK</h4><p>SMS-based job alerts across multiple industries — text "Jobs" to 877877</p></div><div class="badge badge-green">All New Yorkers</div></div></div>
+</div>
+
+<!-- APARTMENT SEARCH -->
+<div id="sec-search" class="section">
+  <div class="section-title">Apartment search & package builder</div>
+  <div class="section-sub">Find voucher-eligible apartments and assemble a complete application package from your document vault.</div>
+
+  <div class="card">
+    <div class="card-title">Search apartments</div>
+    <p style="font-size:13px;color:var(--color-text-secondary, #666);margin-bottom:12px;">Pre-filtered links based on your shopping letter specifications. Tip: on StreetEasy, add "voucher" as a keyword in filters.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://streeteasy.com/for-rent/nyc" target="_blank" style="padding:8px 16px;font-size:13px;font-weight:500;border-radius:var(--border-radius-md, 8px);cursor:pointer;background:var(--color-background-primary, #fff);border:0.5px solid var(--color-border-secondary, #ccc);text-decoration:none;color:var(--color-text-primary, #333);">Search StreetEasy</a>
+      <a href="https://housingconnect.nyc.gov" target="_blank" style="padding:8px 16px;font-size:13px;font-weight:500;border-radius:var(--border-radius-md, 8px);cursor:pointer;background:var(--color-background-primary, #fff);border:0.5px solid var(--color-border-secondary, #ccc);text-decoration:none;color:var(--color-text-primary, #333);">NYC Housing Connect</a>
+      <a href="https://www.nychdc.com/find" target="_blank" style="padding:8px 16px;font-size:13px;font-weight:500;border-radius:var(--border-radius-md, 8px);cursor:pointer;background:var(--color-background-primary, #fff);border:0.5px solid var(--color-border-secondary, #ccc);text-decoration:none;color:var(--color-text-primary, #333);">HDC re-rentals</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Application package builder</div>
+    <p style="font-size:12px;color:var(--color-text-secondary, #666);margin-bottom:12px;">Documents pulled from your vault. Missing items are flagged — complete all before submitting.</p>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>Shopping letter</span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>Household share letter</span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>Photo ID (all household members)</span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>4 most recent paystubs</span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-no">!</div><span style="color:#A32D2D;">Proof of shelter stay / DHS letter — <b>missing</b></span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>Cash Assistance documentation</span></div>
+    <div class="pkg-item"><div class="pkg-icon pkg-yes">&#10003;</div><span>Tenant rights one-pager (auto-generated)</span></div>
+    <div style="margin-top:12px;padding:8px 12px;background:#FAEEDA;border-radius:var(--border-radius-md, 8px);font-size:12px;color:#854F0B;">1 document missing — your case worker has been notified</div>
+  </div>
+</div>
+
+<!-- DOCUMENT VAULT -->
+<div id="sec-vault" class="section">
+  <div class="section-title">Document vault</div>
+  <div class="section-sub">Securely store all your important documents. Upload from your phone camera or as files. Your case worker can view and review these.</div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="card-title" style="margin:0;">Your documents</div>
+      <button style="padding:6px 14px;font-size:12px;font-weight:500;border-radius:var(--border-radius-md, 8px);background:#1B2A4A;color:#fff;border:none;cursor:pointer;">+ Upload</button>
+    </div>
+    <div class="vault-item"><div><div class="vault-name">Birth certificate</div><div class="vault-meta">PDF — uploaded Mar 12, 2026</div></div><div class="badge badge-green">Reviewed</div></div>
+    <div class="vault-item"><div><div class="vault-name">Social Security card</div><div class="vault-meta">JPG — uploaded Mar 12, 2026</div></div><div class="badge badge-green">Reviewed</div></div>
+    <div class="vault-item"><div><div class="vault-name">State ID (front & back)</div><div class="vault-meta">PNG — uploaded Mar 14, 2026</div></div><div class="badge badge-green">Reviewed</div></div>
+    <div class="vault-item"><div><div class="vault-name">Paystub — March 22</div><div class="vault-meta">PDF — uploaded Mar 24, 2026</div></div><div class="badge badge-teal">Uploaded</div></div>
+    <div class="vault-item"><div><div class="vault-name">Paystub — March 8</div><div class="vault-meta">PDF — uploaded Mar 24, 2026</div></div><div class="badge badge-teal">Uploaded</div></div>
+    <div class="vault-item"><div><div class="vault-name">Shopping letter</div><div class="vault-meta">PDF — uploaded Apr 1, 2026</div></div><div class="badge badge-green">Reviewed</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:#854F0B;">Requested by case worker</div>
+    <div class="vault-item"><div><div class="vault-name">Proof of shelter stay / DHS letter</div><div class="vault-meta">Requested Apr 3, 2026 — "Need this for your apartment package"</div></div><div class="badge badge-red">Missing</div></div>
+  </div>
+</div>
+
+<!-- KNOW YOUR RIGHTS -->
+<div id="sec-rights" class="section">
+  <div class="section-title">Know your rights</div>
+  <div class="section-sub">Tap any topic to expand. All information is for guidance only — consult a housing attorney or Legal Aid for specific legal advice.</div>
+
+  <div class="card">
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; Right to shelter</h4><p>New York City is legally required to provide shelter to anyone who needs it, under the Callahan v. Carey consent decree (1981). You cannot be turned away. If you are denied shelter, call 311 immediately.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; Source of income discrimination</h4><p>It is illegal for landlords or brokers to refuse to rent to you because you have a CityFHEPS voucher. This is called source of income discrimination. Report violations to the NYC Commission on Human Rights at 212-416-0197 or HRA's SOI team at 929-221-6576 / soi@dss.nyc.gov.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; CityFHEPS late fee protections</h4><p>A landlord cannot evict you for late fees on the CityFHEPS portion of your rent. As long as DSS's monthly payment is made within the month it's due, it is not considered late. Landlords also cannot take you to small claims court for late fees on the CityFHEPS portion.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; Cash Assistance fair hearing rights</h4><p>If your Cash Assistance is denied or terminated, you have the right to a fair hearing. You can request one and continue receiving benefits during the appeal process. Call the HRA Infoline at 718-557-1399 for assistance.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; Right to legal counsel in housing court</h4><p>Under NYC's Right to Counsel law, eligible tenants facing eviction in housing court have the right to free legal representation. Contact the Legal Aid Society or call 311 to find your local provider.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; Shelter conditions & personal property</h4><p>You have the right to safe and clean shelter conditions, personal property storage, mail and phone access, and regular visiting hours. To file a complaint about shelter conditions, call 311 or contact the DHS complaint line.</p></div>
+    <div class="rights-item" onclick="this.classList.toggle('open')"><h4>&#9654; How to file complaints</h4><p>NYC Commission on Human Rights: 212-416-0197. DHS complaints: call 311. HRA Infoline: 718-557-1399. HRA Source of Income team: 929-221-6576. Legal Aid Society: 212-577-3300.</p></div>
+  </div>
+</div>
+
+<!-- CASE WORKER DASHBOARD -->
+<div id="sec-caseworker" class="section">
+  <div class="section-title">Case worker dashboard</div>
+  <div class="section-sub">Manage your caseload, review documents, and track client progress.</div>
+
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-label">Active clients</div><div class="metric-value">24</div></div>
+    <div class="metric"><div class="metric-label">Eligible (pending review)</div><div class="metric-value" style="color:#1D9E75;">6</div></div>
+    <div class="metric"><div class="metric-label">Letters expiring <30d</div><div class="metric-value" style="color:#E24B4A;">3</div></div>
+    <div class="metric"><div class="metric-label">Housed this quarter</div><div class="metric-value">5</div></div>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <div class="card-title">Client list</div>
+    <div class="cw-header"><div>Client</div><div>Stage</div><div>Days</div><div>Letter exp.</div><div>Docs</div></div>
+    <div class="cw-row"><div style="font-weight:500;">Maria Santos</div><div><span class="stage-pill badge-green">Apartment search</span></div><div>18</div><div style="color:#E24B4A;font-weight:500;">12 days</div><div><span class="badge badge-red">Incomplete</span></div></div>
+    <div class="cw-row"><div style="font-weight:500;">James Wright</div><div><span class="stage-pill badge-blue">Under review</span></div><div>34</div><div>87 days</div><div><span class="badge badge-green">Complete</span></div></div>
+    <div class="cw-row"><div style="font-weight:500;">Aisha Johnson</div><div><span class="stage-pill badge-amber">Eligibility</span></div><div>7</div><div>—</div><div><span class="badge badge-red">Incomplete</span></div></div>
+    <div class="cw-row"><div style="font-weight:500;">Kevin Chen</div><div><span class="stage-pill badge-green">Apartment search</span></div><div>45</div><div>56 days</div><div><span class="badge badge-green">Complete</span></div></div>
+    <div class="cw-row"><div style="font-weight:500;">Destiny Williams</div><div><span class="stage-pill badge-teal">Housed</span></div><div>—</div><div>—</div><div><span class="badge badge-green">Complete</span></div></div>
+    <div class="cw-row"><div style="font-weight:500;">Robert Davis</div><div><span class="stage-pill badge-purple">Intake</span></div><div>3</div><div>—</div><div><span class="badge badge-red">Incomplete</span></div></div>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+var FPL_2026 = { 1: 15960, 2: 21640, 3: 27320, 4: 33000, 5: 38680, 6: 44360 };
+var FPL_INCREMENT = 5680;
+
+function getFPL200(size) {
+  if (size <= 6) return FPL_2026[size] * 2;
+  return (FPL_2026[6] + FPL_INCREMENT * (size - 6)) * 2;
+}
+
+function startApp(path) {
+  document.getElementById('onboard-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  showSection(path === 'shelter' ? 'intake' : 'calc');
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelector('[data-section="' + id + '"]').classList.add('active');
+}
+
+function toggleCheck(cb) {
+  cb.closest('.checklist-item').classList.toggle('checked', cb.checked);
+}
+
+function calculate() {
+  var ps = [1,2,3,4].map(function(i) { return parseFloat(document.getElementById('ps'+i).value) || 0; });
+  if (ps.some(function(v) { return v === 0; })) {
+    document.getElementById('calc-result').innerHTML = '<div class="result-box" style="background:var(--color-background-secondary, #f5f5f5);border:0.5px solid var(--color-border-tertiary, #ddd);"><div class="result-title">Enter all 4 paystubs</div><p style="font-size:13px;color:var(--color-text-secondary, #666);">Please enter the gross pay amount from each of your 4 most recent paystubs.</p></div>';
+    return;
+  }
+  var freq = parseInt(document.getElementById('frequency').value);
+  var hhSize = parseInt(document.getElementById('household').value);
+  var avg = ps.reduce(function(a,b) { return a+b; }, 0) / 4;
+  var annual = avg * freq;
+  var threshold = getFPL200(hhSize);
+  var diff = threshold - annual;
+  var eligible = annual <= threshold;
+  var freqLabel = {52:'Weekly',26:'Biweekly',24:'Semi-monthly',12:'Monthly'}[freq];
+  var multLabel = {52:'52',26:'26',24:'24',12:'12'}[freq];
+
+  var fmt = function(n) { return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+
+  var html = '<div class="result-box ' + (eligible ? 'result-eligible' : 'result-ineligible') + '">';
+  html += '<div class="result-title">' + (eligible ? '&#10003; You appear to meet the income requirement' : '&#10007; Your income appears to exceed the threshold') + '</div>';
+  html += '<div class="math-breakdown">';
+  html += 'Paystub 1: <span class="num">$' + fmt(ps[0]) + '</span><br>';
+  html += 'Paystub 2: <span class="num">$' + fmt(ps[1]) + '</span><br>';
+  html += 'Paystub 3: <span class="num">$' + fmt(ps[2]) + '</span><br>';
+  html += 'Paystub 4: <span class="num">$' + fmt(ps[3]) + '</span><br><br>';
+  html += 'Average gross per ' + freqLabel.toLowerCase() + ' period: <span class="num">$' + fmt(avg) + '</span><br>';
+  html += 'Annualized ($' + fmt(avg) + ' \u00D7 ' + multLabel + '): <span class="num">$' + Math.round(annual).toLocaleString() + '</span><br>';
+  html += '200% FPL for household of ' + hhSize + ': <span class="num">$' + threshold.toLocaleString() + '</span><br>';
+  html += 'Difference: <span class="num">' + (diff >= 0 ? '$' + Math.round(diff).toLocaleString() + ' under' : '$' + Math.round(Math.abs(diff)).toLocaleString() + ' over') + ' the threshold</span>';
+  html += '</div>';
+  if (eligible) {
+    html += '<p style="font-size:12px;margin-top:12px;line-height:1.5;">Next steps: Contact your nearest Homebase office. Ensure you are enrolled in Cash Assistance if eligible. If in shelter, verify you have been there at least 90 days. Your case worker will be notified.</p>';
+  } else {
+    html += '<p style="font-size:12px;margin-top:12px;line-height:1.5;">Your income exceeds the 200% FPL threshold by $' + Math.round(Math.abs(diff)).toLocaleString() + '. You may still qualify for other programs: Section 8 (if waitlist is open), FHEPS (families with children), or DRIE/SCRIE (disabled or senior residents).</p>';
+  }
+  html += '</div>';
+  document.getElementById('calc-result').innerHTML = html;
+}
+</script>
